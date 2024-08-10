@@ -7,12 +7,21 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/node:19.8.1
+      - image: cimg/base:current
     working_directory: ~/app
-    environment:
-      MY_VAR: "sample-value"
     steps:
         - checkout
-        - run: echo $MY_VAR
-        - run: node -v
-        - run: npm install
+        - setup_remote_docker:
+            version: 20.10.14
+        - run: 
+            name: Install dependencies
+            command: echo "No need to install anything. \n Just build and push the Docker image"
+        - run: 
+            name: Build and push Docker image
+            command: |
+              echo "Inside the Build and push Docker image step"
+              docker --version 
+              docker build -t "$DOCKER_USERNAME"/sample-express-app .
+              docker tag "$DOCKER_USERNAME"/sample-express-app "$DOCKER_USERNAME"/sample-express-app:1.0.0
+              echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+              docker push "$DOCKER_USERNAME"/sample-express-app:1.0.0
